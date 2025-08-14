@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useAuth } from "@/components/auth-provider";
+import { supabase } from "@/lib/supabase";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -17,7 +18,7 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const supabase = createClientComponentClient();
+  const { signInWithGoogle } = useAuth();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,7 +166,21 @@ export default function SignUpPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" disabled={loading}>
+            <Button 
+              variant="outline" 
+              disabled={loading}
+              onClick={async () => {
+                try {
+                  await signInWithGoogle();
+                } catch (error) {
+                  toast({
+                    title: "Error",
+                    description: "Failed to sign in with Google",
+                    variant: "destructive",
+                  });
+                }
+              }}
+            >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
